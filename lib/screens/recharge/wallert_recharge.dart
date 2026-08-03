@@ -7,15 +7,16 @@ import '../../controllers/recharge_controller.dart';
 import '../../widgets/wallet_card.dart';
 
 class WalletRechargeScreen extends StatelessWidget {
-  WalletRechargeScreen({super.key});
+  WalletRechargeScreen({super.key}) {
+    // Always refresh configs when opening this screen
+    // (Get.put may return an existing controller whose onInit already ran)
+    controller.loadConfigs();
+  }
 
   final controller = Get.put(WalletRechargeController());
-  final List<String> quickAmounts = ["50", "100", "300", "500"];
 
   @override
   Widget build(BuildContext context) {
-    final user = AppConstants.currentUser.value?.userData;
-
     return AppScreenWrapper(
       title: "recharge_wallet".tr,
       child: SingleChildScrollView(
@@ -62,21 +63,39 @@ class WalletRechargeScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // ✅ Quick Amount Buttons
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: quickAmounts.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // ✅ 2 buttons per row
-                crossAxisSpacing: 14,
-                mainAxisSpacing: 14,
-                childAspectRatio: 3.5, // ✅ Wide professional buttons
-              ),
-              itemBuilder: (context, index) {
-                return _quickAmountButton(quickAmounts[index]);
-              },
-            ),
+            // ✅ Quick Amount Buttons (filtered by min_recharge from configs)
+            Obx(() {
+              if (controller.isConfigLoading.value) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Center(
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                );
+              }
+
+              final amounts = controller.filteredQuickAmounts;
+              if (amounts.isEmpty) return const SizedBox.shrink();
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: amounts.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 14,
+                  mainAxisSpacing: 14,
+                  childAspectRatio: 3.5,
+                ),
+                itemBuilder: (context, index) {
+                  return _quickAmountButton(amounts[index]);
+                },
+              );
+            }),
 
             const SizedBox(height: 40),
 

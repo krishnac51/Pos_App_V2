@@ -57,6 +57,7 @@ class Accounts {
   String? city;
   String? dob;
   String? address;
+  String? allergies;
   String? createdAt;
   ImageUrl? imageUrl;
   int? remainingBalance;
@@ -74,6 +75,7 @@ class Accounts {
     this.dob,
     this.createdAt,
     this.address,
+    this.allergies,
     this.imageUrl,
     this.remainingBalance,
     this.media,
@@ -90,6 +92,7 @@ class Accounts {
     city = json['city'];
     dob = json['dob'];
     address = json['address'];
+    allergies = json['allergies']?.toString();
     createdAt = json['created_at'];
     remainingBalance = json['remaining_balance'];
 
@@ -123,6 +126,8 @@ class Accounts {
     data['country'] = country;
     data['city'] = city;
     data['dob'] = dob;
+    data['address'] = address;
+    data['allergies'] = allergies;
     data['created_at'] = createdAt;
     data['remaining_balance'] = remainingBalance;
 

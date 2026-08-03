@@ -89,6 +89,7 @@ class EditProfileController extends GetxController {
     required String city,
     required String address,
     required String dob,
+    required String allergies,
   }) async {
     try {
       updatingProfile.value = true;
@@ -102,6 +103,7 @@ class EditProfileController extends GetxController {
         "country": country,
         "city": city,
         "address": address,
+        "allergies": allergies,
         "dob": dob,
       };
 
@@ -143,6 +145,7 @@ class EditProfileController extends GetxController {
     required String city,
     required String address,
     required String dob,
+    required String allergies,
   }) async {
     try {
       updatingProfile.value = true;
@@ -156,6 +159,7 @@ class EditProfileController extends GetxController {
         "country": country,
         "city": city,
         "address": address,
+        "allergies": allergies,
         "dob": dob,
       };
 

@@ -4,6 +4,7 @@ import 'package:pos_v2/constants/api_urls.dart';
 
 import '../constants/app_constants.dart';
 import '../core/services/api_services.dart';
+import '../models/app_config_model.dart';
 import '../models/intiate_payment_model.dart';
 import '../screens/recharge/ottu_checkout_screen.dart';
 import '../utils/snakbar_helper.dart';
@@ -12,9 +13,71 @@ class WalletRechargeController extends GetxController {
   TextEditingController amountController = TextEditingController();
   final api = Get.find<ApiService>();
   RxBool isLoading = false.obs;
+  RxBool isConfigLoading = false.obs;
+  RxDouble minRecharge = 0.0.obs;
+
+  static const List<String> allQuickAmounts = ["50", "100", "300", "500"];
+
+  List<String> get filteredQuickAmounts {
+    final min = minRecharge.value;
+    return allQuickAmounts.where((amount) {
+      final value = double.tryParse(amount) ?? 0;
+      return min <= 0 || value >= min;
+    }).toList();
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    minRecharge.value = AppConstants.minRecharge;
+    loadConfigs();
+  }
+
+  /// Fresh fetch from configs API whenever recharge screen needs min amount.
+  Future<void> loadConfigs() async {
+    try {
+      isConfigLoading.value = true;
+      final headers = await AppConstants.getAuthHeaders();
+      final data = await api.get(ApiUrls.configsUrl, headers: headers);
+      print("✅ Config API Response (recharge): $data");
+
+      final configModel = AppConfig.fromJson(data);
+      if (configModel.success == true) {
+        AppConstants.saveConfig(configModel);
+        minRecharge.value = AppConstants.minRecharge;
+        print("✅ Recharge min amount: ${minRecharge.value}");
+      }
+    } catch (e) {
+      print("❌ Config API Error (recharge): $e");
+      minRecharge.value = AppConstants.minRecharge;
+    } finally {
+      isConfigLoading.value = false;
+    }
+  }
+
   Future<void> startRecharge() async {
     if (amountController.text.isEmpty) {
       SnackbarHelper.showError('enter_amount'.tr);
+      return;
+    }
+
+    final amount = double.tryParse(amountController.text.trim());
+    if (amount == null || amount <= 0) {
+      SnackbarHelper.showError('invalid_amount'.tr);
+      return;
+    }
+
+    final min = minRecharge.value > 0
+        ? minRecharge.value
+        : AppConstants.minRecharge;
+    if (min > 0 && amount < min) {
+      SnackbarHelper.showError(
+        'min_recharge_error'.trParams({
+          'amount': min.toStringAsFixed(
+            min.truncateToDouble() == min ? 0 : 2,
+          ),
+        }),
+      );
       return;
     }
 
@@ -27,7 +90,7 @@ class WalletRechargeController extends GetxController {
       final user = AppConstants.currentUser.value!.userData;
 
       final body = {
-        "amount": double.parse(amountController.text),
+        "amount": amount,
         "email": user?.email ?? "",
         "first_name": user?.name ?? "User",
         "phone": user?.phone ?? "",
@@ -84,64 +147,4 @@ class WalletRechargeController extends GetxController {
       isLoading.value = false;
     }
   }
-
-  // Future<void> startRecharge() async {
-  //   if (amountController.text.isEmpty) {
-  //     Get.snackbar("Error", "Please enter amount");
-  //     return;
-  //   }
-
-  //   isLoading.value = true;
-
-  //   try {
-  //     final user = AppConstants.currentUser.value!.userData;
-
-  //     final response = await http.post(
-  //       Uri.parse("https://sandbox.ottu.net/b/checkout/v1/pymt-txn/"),
-  //       headers: {
-  //         "Authorization": "Api-Key ${AppConstants.ottuApiKey}",
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: jsonEncode({
-  //         "amount": amountController.text,
-  //         "currency_code": "SAR",
-  //         "payment_type": "one_off",
-  //         "type": "e_commerce",
-
-  //         "pg_codes": ["credit-card-bsf"],
-  //         "customer_email": user?.email ?? "",
-  //         "customer_first_name": user?.name ?? "User",
-  //         "customer_phone": user?.phone ?? "",
-
-  //         "order_no": DateTime.now().millisecondsSinceEpoch.toString(),
-
-  //         "redirect_url": "https://fosshati.com/payment/redirect",
-  //         "webhook_url": "https://fosshati.com/payment/webhook",
-  //       }),
-  //     );
-
-  //     if (response.statusCode == 200 || response.statusCode == 201) {
-  //       final jsonData = jsonDecode(response.body);
-
-  //       final sessionId = jsonData["session_id"];
-
-  //       print("✅ Session Generated: $sessionId");
-
-  //       // ✅ Open Checkout Screen
-  //       Get.to(
-  //         () => OttuCheckoutScreen(
-  //           sessionId: sessionId,
-  //           amount: double.parse(amountController.text),
-  //         ),
-  //       );
-  //     } else {
-  //       print(response.body);
-  //       Get.snackbar("Error", "Failed to generate payment session");
-  //     }
-  //   } catch (e) {
-  //     Get.snackbar("Error", e.toString());
-  //   }
-
-  //   isLoading.value = false;
-  // }
 }

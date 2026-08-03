@@ -37,6 +37,7 @@ class RegisterController extends GetxController {
   final passwordController = TextEditingController();
   var selectedImagePath = "".obs;
   final addressController = TextEditingController();
+  final allergiesController = TextEditingController();
 
   RxBool isStoreLoading = false.obs;
   RxBool creatingUser = false.obs;
@@ -148,6 +149,7 @@ class RegisterController extends GetxController {
         "country": 'Riyad',
         "city": 'Riyad',
         "address": addressController.text.trim(),
+        "allergies": allergiesController.text.trim(),
         "dob": formattedDob,
         "password": passwordController.text.trim(),
       };
@@ -196,6 +198,7 @@ class RegisterController extends GetxController {
         "country": 'Riyad',
         "city": 'Riyad',
         "address": addressController.text.trim(),
+        "allergies": allergiesController.text.trim(),
         "dob": formattedDob,
         "password": passwordController.text.trim(),
       };

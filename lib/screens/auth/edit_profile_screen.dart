@@ -32,6 +32,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _countryController = TextEditingController();
   final _cityController = TextEditingController();
   final _addressController = TextEditingController();
+  final _allergiesController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -52,6 +53,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _addressController.text = "";
       _usernameController.text = m.username ?? "";
       _addressController.text = m.address ?? "";
+      _allergiesController.text = m.allergies ?? "";
       _govIdController.text = m.govId ?? "";
     } else {
       final user = AppConstants.currentUser.value?.userData;
@@ -62,6 +64,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _countryController.text = user?.country ?? "";
       _cityController.text = user?.city ?? "";
       _addressController.text = user?.address ?? "";
+      _allergiesController.text = user?.allergies ?? "";
       _usernameController.text = user?.username ?? "";
       _govIdController.text = user?.govId ?? "";
     }
@@ -96,6 +99,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         city: _cityController.text,
         dob: _dobController.text,
         address: _addressController.text,
+        allergies: _allergiesController.text.trim(),
       );
     } else {
       controller.updateProfile(
@@ -108,6 +112,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         city: _cityController.text,
         address: _addressController.text,
         dob: _dobController.text,
+        allergies: _allergiesController.text.trim(),
       );
     }
   }
@@ -258,6 +263,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 readOnly: true,
                 onTap: () => _selectDate(context),
               ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                _allergiesController,
+                'allergies'.tr,
+                Icons.health_and_safety_outlined,
+                maxLines: 3,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(250),
+                ],
+                validator: (_) => null,
+              ),
               const SizedBox(height: 24),
 
               _buildSectionTitle('location'.tr),
@@ -338,6 +354,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     TextInputType? keyboardType,
     String? Function(String?)? validator,
     List<TextInputFormatter>? inputFormatters,
+    int maxLines = 1,
   }) {
     final decoration = lockedField
         ? _lockedInputDecoration(context, label, icon)
@@ -350,6 +367,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       keyboardType: keyboardType,
       onTap: onTap,
       inputFormatters: inputFormatters,
+      maxLines: maxLines,
       canRequestFocus: !lockedField,
       enableInteractiveSelection: !lockedField,
       showCursor: !lockedField,
@@ -451,6 +469,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _dobController.dispose();
     _cityController.dispose();
     _addressController.dispose();
+    _allergiesController.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();

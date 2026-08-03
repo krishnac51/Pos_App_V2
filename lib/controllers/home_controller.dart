@@ -67,6 +67,7 @@ class HomeController extends GetxController {
         print("✅ Config Saved Successfully");
         print("Base URL: ${AppConstants.paymentBaseUrl}");
         print("API Key: ${AppConstants.paymentApiKey}");
+        print("Min Recharge: ${AppConstants.minRecharge}");
       }
     } catch (e) {
       print("❌ Config API Error: $e");
