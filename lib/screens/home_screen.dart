@@ -390,6 +390,7 @@ class _HomePageContentState extends State<_HomePageContent>
   Color getStatusColor(String? status) {
     switch (status?.toLowerCase()) {
       case 'delivered':
+      case 'completed':
         return Colors.green;
       case 'on the way':
         return Colors.orange;

@@ -423,6 +423,7 @@ class OrderDetailScreen extends StatelessWidget {
   Color _statusColor(String? status) {
     switch (status?.toLowerCase()) {
       case 'delivered':
+      case 'completed':
         return Colors.green;
       case 'on the way':
       case 'shipped':

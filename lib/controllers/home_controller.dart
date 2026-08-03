@@ -3,12 +3,12 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_v2/constants/api_urls.dart';
 import 'package:pos_v2/constants/app_constants.dart';
-import 'package:pos_v2/models/family_member_model.dart';
+import 'package:pos_v2/models/family_member_model.dart' hide Message;
 import 'package:pos_v2/models/user_model.dart';
 
 import '../core/services/analytics_services.dart';
 import '../core/services/api_services.dart';
-import '../models/app_config_model.dart';
+import '../models/app_config_model.dart' show AppConfig;
 import '../models/user_sales_model.dart';
 import '../utils/app_utils.dart';
 import '../utils/error_message_helper.dart';
@@ -34,6 +34,10 @@ class HomeController extends GetxController {
   int currentPage = 1;
   int perPage = 10;
   bool hasMorePages = true;
+
+  /// TODO(PLAYSTORE_SS): set to `false` / remove after Play Store screenshots.
+  static const bool useDummyRecentOrders = true;
+
   @override
   Future<void> onInit() async {
     super.onInit();
@@ -184,6 +188,19 @@ class HomeController extends GetxController {
     }
 
     if (!hasMorePages) return;
+
+    // TODO(PLAYSTORE_SS): remove this block after screenshots
+    if (useDummyRecentOrders) {
+      if (loadMore) return;
+      isSaleLoading.value = true;
+      await Future.delayed(const Duration(milliseconds: 300));
+      sales = _dummyRecentOrders();
+      hasMorePages = false;
+      salesError.value = null;
+      isSaleLoading.value = false;
+      update();
+      return;
+    }
 
     try {
       if (loadMore) {
@@ -452,6 +469,120 @@ class HomeController extends GetxController {
     } finally {
       deletingMemberId.value = -1;
     }
+  }
+
+  /// TODO(PLAYSTORE_SS): remove after Play Store screenshots.
+  UserSalesModel _dummyRecentOrders() {
+    final now = DateTime.now();
+    String d(int daysAgo) =>
+        now.subtract(Duration(days: daysAgo)).toIso8601String().split('T').first;
+
+    return UserSalesModel(
+      success: true,
+      message: Message(
+        data: [
+          Data(
+            id: 9001,
+            referenceCode: 'ORD-10428',
+            date: d(0),
+            total: '86.50',
+            paid: '86.50',
+            due: '0.00',
+            status: 'Completed',
+            items: [
+              Items(
+                name: 'Chicken Shawarma Meal',
+                quantity: 2,
+                unit: 'pcs',
+                price: '28.00',
+                total: '56.00',
+              ),
+              Items(
+                name: 'Fresh Orange Juice',
+                quantity: 2,
+                unit: 'pcs',
+                price: '15.25',
+                total: '30.50',
+              ),
+            ],
+          ),
+          Data(
+            id: 9002,
+            referenceCode: 'ORD-10391',
+            date: d(1),
+            total: '124.00',
+            paid: '124.00',
+            due: '0.00',
+            status: 'Completed',
+            items: [
+              Items(
+                name: 'Family Combo Platter',
+                quantity: 1,
+                unit: 'pcs',
+                price: '99.00',
+                total: '99.00',
+              ),
+              Items(
+                name: 'Soft Drink',
+                quantity: 2,
+                unit: 'pcs',
+                price: '12.50',
+                total: '25.00',
+              ),
+            ],
+          ),
+          Data(
+            id: 9003,
+            referenceCode: 'ORD-10355',
+            date: d(3),
+            total: '45.75',
+            paid: '45.75',
+            due: '0.00',
+            status: 'Completed',
+            items: [
+              Items(
+                name: 'Grilled Chicken Sandwich',
+                quantity: 1,
+                unit: 'pcs',
+                price: '32.00',
+                total: '32.00',
+              ),
+              Items(
+                name: 'French Fries',
+                quantity: 1,
+                unit: 'pcs',
+                price: '13.75',
+                total: '13.75',
+              ),
+            ],
+          ),
+          Data(
+            id: 9004,
+            referenceCode: 'ORD-10288',
+            date: d(5),
+            total: '67.00',
+            paid: '0.00',
+            due: '67.00',
+            status: 'Completed',
+            items: [
+              Items(
+                name: 'Beef Burger Deluxe',
+                quantity: 2,
+                unit: 'pcs',
+                price: '33.50',
+                total: '67.00',
+              ),
+            ],
+          ),
+        ],
+        pagination: Pagination(
+          currentPage: 1,
+          lastPage: 1,
+          perPage: 10,
+          total: 4,
+        ),
+      ),
+    );
   }
 
   Future<void> getCurrentBalance() async {
