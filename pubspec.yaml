@@ -65,6 +65,11 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
+# path_provider_foundation 2.6+ pulls objective_c native assets that
+# embed an IOSSIMULATOR platform tag and fail App Store validation.
+dependency_overrides:
+  path_provider_foundation: 2.5.1
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
