@@ -21,14 +21,16 @@ https://www.transfernow.net/dl/20260617vTuMVCeM
 
 
 
-Swift Compiler Error (Xcode): Value of type 'ButtonComponent' has no member 'borderColor'
-/Users/twiplo/.pub-cache/git/ottu-flutter-9bcdd5d4b2cc3daf6c243a75e5728dc10e838c1d/ios/ottu_flutter_checkout/Sources/ottu_flutter_checkout/ext.swift:212:15
+cd /path/to/Pos_App_V2
 
-Swift Compiler Error (Xcode): Value of type 'ButtonComponent' has no member 'borderWidth'
-/Users/twiplo/.pub-cache/git/ottu-flutter-9bcdd5d4b2cc3daf6c243a75e5728dc10e838c1d/ios/ottu_flutter_checkout/Sources/ottu_flutter_checkout/ext.swift:216:15
+flutter clean
+rm -rf build .dart_tool/hooks_runner ios/Pods ios/Podfile.lock ios/.symlinks
+rm -rf ~/Library/Developer/Xcode/DerivedData/*
 
-Swift Compiler Error (Xcode): Value of type 'ButtonComponent' has no member 'cornerRadius'
-/Users/twiplo/.pub-cache/git/ottu-flutter-9bcdd5d4b2cc3daf6c243a75e5728dc10e838c1d/ios/ottu_flutter_checkout/Sources/ottu_flutter_checkout/ext.swift:220:15
+flutter pub get
+cd ios && pod install --repo-update && cd ..
 
-Could not build the application for the simulator.
-Error launching application on iPhone 17 Pro.
+# Confirm objective_c is gone:
+grep -n "objective_c" pubspec.lock || echo "OK: objective_c not in lockfile"
+
+flutter build ipa --release

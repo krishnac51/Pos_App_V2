@@ -36,7 +36,7 @@ class HomeController extends GetxController {
   bool hasMorePages = true;
 
   /// TODO(PLAYSTORE_SS): set to `false` / remove after Play Store screenshots.
-  static const bool useDummyRecentOrders = true;
+  static const bool useDummyRecentOrders = false;
 
   @override
   Future<void> onInit() async {

@@ -54,6 +54,8 @@ dependencies:
   firebase_crashlytics: ^5.0.7
   firebase_analytics: ^12.1.1
   webview_flutter: ^4.13.0
+  # Pin non-FFI version — 2.6.0+ embeds objective_c.framework (App Store reject)
+  path_provider_foundation: 2.5.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -65,8 +67,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
-# path_provider_foundation 2.6+ pulls objective_c native assets that
-# embed an IOSSIMULATOR platform tag and fail App Store validation.
+# Keep override too so transitive upgrades cannot pull 2.6.0 back in.
 dependency_overrides:
   path_provider_foundation: 2.5.1
 
