@@ -13,7 +13,9 @@ class StoreSelectionStep extends StatelessWidget {
       children: [
         const SizedBox(height: 20),
         Text(
-          'select_preferred_store'.tr,
+          controller.isFamilyMember
+              ? 'select_child_store'.tr
+              : 'select_preferred_store'.tr,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),

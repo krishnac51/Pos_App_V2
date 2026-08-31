@@ -7,6 +7,7 @@ import 'package:pos_v2/screens/auth/register/personal_info_step.dart';
 import 'package:pos_v2/screens/auth/register/profile_picture_step.dart';
 import 'package:pos_v2/screens/auth/register/store_selection_step.dart';
 
+import '../../../constants/app_constants.dart';
 import '../../../controllers/home_controller.dart';
 import '../../../core/services/analytics_services.dart';
 import '../../../utils/snakbar_helper.dart';
@@ -34,98 +35,63 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void initState() {
     super.initState();
     controller.isFamilyMember = widget.isFamilyMember;
+    controller.setStep(0);
+    controller.reorderStoresForParent();
 
-    if (widget.isFamilyMember) {
-      controller.setStep(0);
-
-      steps = [
-        Form(
-          key: _personalFormKey,
-          child: PersonalInfoStep(
-            controller: controller,
-            formKey: _personalFormKey,
-          ),
+    steps = [
+      StoreSelectionStep(controller: controller),
+      Form(
+        key: _personalFormKey,
+        child: PersonalInfoStep(
+          controller: controller,
+          formKey: _personalFormKey,
         ),
-        ProfilePictureStep(controller: controller),
-      ];
+      ),
+      ProfilePictureStep(controller: controller),
+    ];
 
-      stepIndicators = [
-        EasyStep(title: 'personal'.tr, icon: const Icon(Icons.person)),
-        EasyStep(title: 'profile_picture'.tr, icon: const Icon(Icons.photo)),
-      ];
-    } else {
-      steps = [
-        StoreSelectionStep(controller: controller),
-        Form(
-          key: _personalFormKey,
-          child: PersonalInfoStep(
-            controller: controller,
-            formKey: _personalFormKey,
-          ),
-        ),
-        ProfilePictureStep(controller: controller),
-      ];
-
-      stepIndicators = [
-        EasyStep(title: 'store'.tr, icon: const Icon(Icons.store)),
-        EasyStep(title: 'personal'.tr, icon: const Icon(Icons.person)),
-        EasyStep(title: 'profile_picture'.tr, icon: const Icon(Icons.photo)),
-      ];
-    }
+    stepIndicators = [
+      EasyStep(title: 'store'.tr, icon: const Icon(Icons.store)),
+      EasyStep(title: 'personal'.tr, icon: const Icon(Icons.person)),
+      EasyStep(title: 'profile_picture'.tr, icon: const Icon(Icons.photo)),
+    ];
   }
 
   void _nextStep() {
     bool isValid = false;
 
-    if (widget.isFamilyMember) {
-      switch (controller.currentStep) {
-        case 0:
-          isValid = _personalFormKey.currentState?.validate() ?? false;
-          if (!isValid) return;
+    switch (controller.currentStep) {
+      case 0:
+        isValid = controller.selectedTenantId.value.isNotEmpty;
+        if (!isValid) {
+          SnackbarHelper.showError("select_store_error".tr);
+          return;
+        }
+        AnalyticsService.logScreen(screenName: 'PersonalInformation');
+        controller.nextStep();
+        _scrollToTop();
+        return;
+      case 1:
+        isValid = _personalFormKey.currentState?.validate() ?? false;
+        if (!isValid) return;
+        if (widget.isFamilyMember) {
           AnalyticsService.logScreen(screenName: 'AddProfilePicture');
           _addMember();
-          return;
-        case 1:
-          isValid = controller.selectedImagePath.value.isNotEmpty;
-          if (!isValid) {
-            SnackbarHelper.showError("select_image_error".tr);
-            return;
-          }
-          AnalyticsService.logScreen(screenName: 'RegistrationSuccess');
-          controller.uploadUserProfileImage(
-            isFamilyMember: widget.isFamilyMember,
-          );
-          return;
-      }
-    } else {
-      switch (controller.currentStep) {
-        case 0:
-          isValid = controller.selectedTenantId.value.isNotEmpty;
-          if (!isValid) {
-            SnackbarHelper.showError("select_store_error".tr);
-            return;
-          }
-          AnalyticsService.logScreen(screenName: 'PersonalInformation');
-          controller.nextStep();
-          _scrollToTop();
-          return;
-        case 1:
-          isValid = _personalFormKey.currentState?.validate() ?? false;
-          if (!isValid) return;
+        } else {
           _submitForm();
+        }
+        return;
+      case 2:
+        isValid = controller.selectedImagePath.value.isNotEmpty;
+        if (!isValid) {
+          SnackbarHelper.showError("select_image_error".tr);
           return;
-        case 2:
-          isValid = controller.selectedImagePath.value.isNotEmpty;
-          if (!isValid) {
-            SnackbarHelper.showError("select_image_error".tr);
-            return;
-          }
-          AnalyticsService.logScreen(screenName: 'RegistrationSuccess');
-          controller.uploadUserProfileImage(
-            isFamilyMember: widget.isFamilyMember,
-          );
-          return;
-      }
+        }
+        AnalyticsService.logScreen(screenName: 'RegistrationSuccess');
+        controller.uploadUserProfileImage(
+          isFamilyMember: widget.isFamilyMember,
+        );
+        return;
     }
   }
 
@@ -297,10 +263,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Text(
                       controller.currentStep == steps.length - 1
                           ? "upload".tr
-                          : controller.currentStep == 1 &&
-                                !widget.isFamilyMember
-                          ? "register".tr
-                          : "next".tr,
+                          : controller.currentStep == 1
+                              ? (widget.isFamilyMember
+                                  ? "add_member".tr
+                                  : "register".tr)
+                              : "next".tr,
                     ),
                   ),
           ],
