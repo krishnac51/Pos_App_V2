@@ -11,10 +11,10 @@ import 'package:pos_v2/widgets/login_wrapper.dart';
 
 import '../constants/shimmer.dart';
 import '../controllers/bottom_nav_controller.dart';
-import '../widgets/app_error_widget.dart';
 import '../controllers/home_controller.dart';
 import '../core/services/analytics_services.dart';
 import '../utils/snakbar_helper.dart' show SnackbarHelper;
+import '../widgets/app_error_widget.dart';
 import '../widgets/custom_bottom_nav.dart';
 import '../widgets/family_card.dart';
 import '../widgets/order_tile.dart';
@@ -202,7 +202,8 @@ class _HomePageContentState extends State<_HomePageContent>
         return LoginWrapper(
           title: "pos".tr,
           onWalletTap: () {
-            final homeState = context.findAncestorStateOfType<_HomeScreenState>();
+            final homeState = context
+                .findAncestorStateOfType<_HomeScreenState>();
             homeState?._onItemTapped(1);
           },
           child: AppErrorWidget(
@@ -236,138 +237,147 @@ class _HomePageContentState extends State<_HomePageContent>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-              WalletCard(
-                balance: AppConstants.safeParseBalance(
-                  AppConstants.currentBalance.toString(),
+                WalletCard(
+                  balance: AppConstants.safeParseBalance(
+                    AppConstants.currentBalance.toString(),
+                  ),
+                  onRecharge: () {
+                    Get.to(WalletRechargeScreen());
+                  },
                 ),
-                onRecharge: () {
-                  Get.to(WalletRechargeScreen());
-                },
-              ),
-              const SizedBox(height: 30),
-              controller.isFamilyLoading.isTrue ||
-                      controller.isUserLoading.isTrue
-                  ? const ShimmerBox(height: 120, width: double.infinity)
-                  : FamilyCard(
-                      activeMembers:
-                          AppConstants.familyMembers.value?.message?.total ?? 0,
-                      onAddMember: () {
-                        final currentUser =
-                            AppConstants.currentUser.value?.userData;
-                        final totalMembers =
+                const SizedBox(height: 30),
+                controller.isFamilyLoading.isTrue ||
+                        controller.isUserLoading.isTrue
+                    ? const ShimmerBox(height: 120, width: double.infinity)
+                    : FamilyCard(
+                        activeMembers:
                             AppConstants.familyMembers.value?.message?.total ??
-                            0;
+                            0,
+                        onAddMember: () {
+                          final currentUser =
+                              AppConstants.currentUser.value?.userData;
+                          final totalMembers =
+                              AppConstants
+                                  .familyMembers
+                                  .value
+                                  ?.message
+                                  ?.total ??
+                              0;
 
-                        if (currentUser?.parentId != null) {
-                          Get.find<BottomNavController>().changeIndex(2);
-                        } else if (totalMembers >= 10) {
-                          SnackbarHelper.showError(
-                            "max_family_members_error".tr,
-                          );
-                        } else {
-                          Get.to(RegisterScreen(isFamilyMember: true));
-                        }
-                      },
-                      onViewMember: () {
-                        Get.find<BottomNavController>().changeIndex(2);
-                      },
-                    ),
-
-              const SizedBox(height: 30),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Text(
-                      'recent_orders'.tr,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: controller.isSaleLoading.value
-                        ? null
-                        : () => controller.getUserSales(),
-                    icon: RotationTransition(
-                      turns: _refreshSpinController,
-                      child: Icon(
-                        Icons.refresh_rounded,
-                        size: 22,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 36,
-                      minHeight: 36,
-                    ),
-                    visualDensity: VisualDensity.compact,
-                    tooltip: MaterialLocalizations.of(context).refreshIndicatorSemanticLabel,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              salesData.isEmpty
-                  ? Center(
-                      child: Column(
-                        children: [
-                          Lottie.asset(
-                            "assets/lottie/no_data.json",
-                            width: 140,
-                            height: 140,
-                            repeat: true,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'no_orders_yet'.tr,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: salesData.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index < salesData.length) {
-                          final order = salesData[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: InkWell(
-                              onTap: () {
-                                AnalyticsService.logScreen(
-                                  screenName: 'OrderDetail',
-                                );
-                                Get.to(OrderDetailScreen(order: order));
-                              },
-                              child: OrderTile(
-                                orderId: order.referenceCode ?? '',
-                                status: order.status ?? '',
-                                statusColor: getStatusColor(order.status),
-                                date: controller.formatOrderDate(order.date),
-                                amount: "SAR ${order.total ?? '0.00'}",
-                                delayAnimation: 100 * (index + 1),
-                              ),
-                            ),
-                          );
-                        } else {
-                          if (controller.isLoadMore.value) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Center(child: CircularProgressIndicator()),
+                          if (currentUser?.parentId != null) {
+                            Get.find<BottomNavController>().changeIndex(2);
+                          } else if (totalMembers >= 10) {
+                            SnackbarHelper.showError(
+                              "max_family_members_error".tr,
                             );
                           } else {
-                            return const SizedBox.shrink();
+                            Get.to(RegisterScreen(isFamilyMember: true));
                           }
-                        }
-                      },
+                        },
+                        onViewMember: () {
+                          Get.find<BottomNavController>().changeIndex(2);
+                        },
+                      ),
+
+                const SizedBox(height: 30),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'recent_orders'.tr,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
+                    IconButton(
+                      onPressed: controller.isSaleLoading.value
+                          ? null
+                          : () => controller.getUserSales(),
+                      icon: RotationTransition(
+                        turns: _refreshSpinController,
+                        child: Icon(
+                          Icons.refresh_rounded,
+                          size: 22,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 36,
+                        minHeight: 36,
+                      ),
+                      visualDensity: VisualDensity.compact,
+                      tooltip: MaterialLocalizations.of(
+                        context,
+                      ).refreshIndicatorSemanticLabel,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                salesData.isEmpty
+                    ? Center(
+                        child: Column(
+                          children: [
+                            Lottie.asset(
+                              "assets/lottie/no_data.json",
+                              width: 140,
+                              height: 140,
+                              repeat: true,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'no_orders_yet'.tr,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: salesData.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index < salesData.length) {
+                            final order = salesData[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: InkWell(
+                                onTap: () {
+                                  AnalyticsService.logScreen(
+                                    screenName: 'OrderDetail',
+                                  );
+                                  Get.to(OrderDetailScreen(order: order));
+                                },
+                                child: OrderTile(
+                                  orderId: order.referenceCode ?? '',
+                                  status: order.status ?? '',
+                                  statusColor: getStatusColor(order.status),
+                                  date: controller.formatOrderDate(order.date),
+                                  amount: "SAR ${order.total ?? '0.00'}",
+                                  delayAnimation: 100 * (index + 1),
+                                ),
+                              ),
+                            );
+                          } else {
+                            if (controller.isLoadMore.value) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          }
+                        },
+                      ),
               ],
             ),
           ),
@@ -380,6 +390,7 @@ class _HomePageContentState extends State<_HomePageContent>
   Color getStatusColor(String? status) {
     switch (status?.toLowerCase()) {
       case 'delivered':
+      case 'completed':
         return Colors.green;
       case 'on the way':
         return Colors.orange;

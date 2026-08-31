@@ -24,10 +24,12 @@ class AppConstants {
   static String fcmToken = "";
   static String paymentBaseUrl = "";
   static String paymentApiKey = "";
+  static double minRecharge = 0;
 
   static void saveConfig(AppConfig config) {
     paymentBaseUrl = config.message?.paymentBaseUrl ?? "";
     paymentApiKey = config.message?.paymentApiKey ?? "";
+    minRecharge = config.message?.minRecharge ?? 0;
   }
 
   // static String ottuApiKey = "GYj5Na8H.29g9hqNjm11nORQMa2WiZwIBQQ49MdAL";

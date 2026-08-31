@@ -4,7 +4,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -18,18 +17,13 @@ import 'package:pos_v2/screens/splash_screen.dart';
 import 'translation/app_translations.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 }
 
-const _methodChannel = MethodChannel("com.ottu.sample/checkout");
-const _methodCheckoutHeight = "METHOD_CHECKOUT_HEIGHT";
 void main() async {
   await GetStorage.init();
   Get.put(ApiService(baseUrl: ApiUrls.baseUrl));
   WidgetsFlutterBinding.ensureInitialized();
-  // Platform.isAndroid
-  //     ? await Firebase.initializeApp()
-  //     :
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
   FlutterError.onError = (errorDetails) {

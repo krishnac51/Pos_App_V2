@@ -34,6 +34,7 @@ class UserData {
   String? country;
   String? city;
   String? address;
+  String? allergies;
   String? govId;
   dynamic parentId;
   int? status;
@@ -55,6 +56,7 @@ class UserData {
     this.country,
     this.city,
     this.address,
+    this.allergies,
     this.govId,
     this.parentId,
     this.status,
@@ -77,6 +79,7 @@ class UserData {
     country = json['country'];
     city = json['city'];
     address = json['address'];
+    allergies = json['allergies']?.toString();
     govId = json['gov_id'];
     parentId = json['parent_id'];
     status = json['status'];
@@ -110,6 +113,7 @@ class UserData {
     data['country'] = country;
     data['city'] = city;
     data['address'] = address;
+    data['allergies'] = allergies;
     data['gov_id'] = govId;
     data['parent_id'] = parentId;
     data['status'] = status;

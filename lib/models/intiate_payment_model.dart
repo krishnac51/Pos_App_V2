@@ -26,15 +26,25 @@ class Message {
   double? amount;
   String? sessionId;
   String? expiresIn;
+  String? checkoutPageUrl;
+  String? checkoutUrl;
 
-  Message({this.orderNo, this.amount, this.sessionId, this.expiresIn});
+  Message({
+    this.orderNo,
+    this.amount,
+    this.sessionId,
+    this.expiresIn,
+    this.checkoutPageUrl,
+    this.checkoutUrl,
+  });
 
   Message.fromJson(Map<String, dynamic> json) {
     orderNo = json['order_no'];
     amount = (json['amount'] as num?)?.toDouble();
-
     sessionId = json['session_id'];
     expiresIn = json['expires_in'];
+    checkoutPageUrl = json['checkout_page_url'];
+    checkoutUrl = json['checkout_url'];
   }
 
   Map<String, dynamic> toJson() {
@@ -43,6 +53,8 @@ class Message {
     data['amount'] = amount;
     data['session_id'] = sessionId;
     data['expires_in'] = expiresIn;
+    data['checkout_page_url'] = checkoutPageUrl;
+    data['checkout_url'] = checkoutUrl;
     return data;
   }
 }

@@ -37,6 +37,7 @@ class RegisterController extends GetxController {
   final passwordController = TextEditingController();
   var selectedImagePath = "".obs;
   final addressController = TextEditingController();
+  final allergiesController = TextEditingController();
 
   RxBool isStoreLoading = false.obs;
   RxBool creatingUser = false.obs;
@@ -115,6 +116,7 @@ class RegisterController extends GetxController {
       if (data['success'] == true) {
         final model = GetAllStoreResponseModel.fromJson(data);
         stores.value = model.message?.stores ?? [];
+        reorderStoresForParent();
       } else {
         stores.clear();
         SnackbarHelper.showError(
@@ -129,6 +131,24 @@ class RegisterController extends GetxController {
       SnackbarHelper.showError('unexpected_error'.tr);
     } finally {
       isStoreLoading.value = false;
+    }
+  }
+
+  void reorderStoresForParent() {
+    final parentTenantId = AppConstants.currentUser.value?.userData?.tenantId;
+    if (isFamilyMember && parentTenantId != null && parentTenantId.isNotEmpty) {
+      if (stores.isNotEmpty) {
+        final storeList = List<Stores>.from(stores);
+        final index = storeList.indexWhere((s) => s.tenantId == parentTenantId);
+        if (index != -1) {
+          final parentStore = storeList.removeAt(index);
+          storeList.insert(0, parentStore);
+          stores.value = storeList;
+        }
+      }
+      if (selectedTenantId.value.isEmpty) {
+        selectedTenantId.value = parentTenantId;
+      }
     }
   }
 
@@ -148,10 +168,19 @@ class RegisterController extends GetxController {
         "country": 'Riyad',
         "city": 'Riyad',
         "address": addressController.text.trim(),
+        "allergies": allergiesController.text.trim(),
         "dob": formattedDob,
         "password": passwordController.text.trim(),
       };
+
+      debugPrint("=== [REGISTER API REQUEST] ===");
+      debugPrint("URL: ${ApiUrls.registerUrl}");
+      debugPrint("BODY: $body");
+
       final response = await api.post(ApiUrls.registerUrl, body: body);
+
+      debugPrint("=== [REGISTER API RESPONSE] ===");
+      debugPrint("RESPONSE: $response");
 
       if (response['success'] == true) {
         final model = UserSignupModel.fromJson(response);
@@ -163,15 +192,22 @@ class RegisterController extends GetxController {
         isSuccess = true;
         return isSuccess;
       } else {
+        debugPrint("=== [REGISTER API FAILED] ===");
+        debugPrint("Message: ${response['message']}");
         SnackbarHelper.showError(
           response['message'] ?? 'error_creating_account'.tr,
         );
         return isSuccess;
       }
     } on ApiException catch (e) {
+      debugPrint("=== [REGISTER API ERROR - ApiException] ===");
+      debugPrint("Message: ${e.message}, StatusCode: ${e.statusCode}, Data: ${e.data}");
       SnackbarHelper.showApiError(e, fallbackKey: 'error_creating_account');
       return isSuccess;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("=== [REGISTER API ERROR - Catch] ===");
+      debugPrint("Error: $e");
+      debugPrint("StackTrace: $stackTrace");
       SnackbarHelper.showError('unexpected_error'.tr);
       return isSuccess;
     } finally {
@@ -185,7 +221,9 @@ class RegisterController extends GetxController {
       creatingUser.value = true;
 
       final body = {
-        "tenant_id": AppConstants.currentUser.value!.userData!.tenantId ?? "",
+        "tenant_id": selectedTenantId.value.isNotEmpty
+            ? selectedTenantId.value
+            : AppConstants.currentUser.value!.userData!.tenantId ?? "",
         "parent_id": AppConstants.currentUser.value!.userData!.id ?? "",
         "name": nameController.text.trim(),
         "username": usernameController.text.trim(),
@@ -196,10 +234,19 @@ class RegisterController extends GetxController {
         "country": 'Riyad',
         "city": 'Riyad',
         "address": addressController.text.trim(),
+        "allergies": allergiesController.text.trim(),
         "dob": formattedDob,
         "password": passwordController.text.trim(),
       };
+
+      debugPrint("=== [ADD FAMILY MEMBER API REQUEST] ===");
+      debugPrint("URL: ${ApiUrls.registerUrl}");
+      debugPrint("BODY: $body");
+
       final response = await api.post(ApiUrls.registerUrl, body: body);
+
+      debugPrint("=== [ADD FAMILY MEMBER API RESPONSE] ===");
+      debugPrint("RESPONSE: $response");
 
       if (response['success'] == true) {
         final model = UserSignupModel.fromJson(response);
@@ -207,15 +254,22 @@ class RegisterController extends GetxController {
         isSuccess = true;
         return isSuccess;
       } else {
+        debugPrint("=== [ADD FAMILY MEMBER API FAILED] ===");
+        debugPrint("Message: ${response['message']}");
         SnackbarHelper.showError(
           response['message'] ?? 'error_creating_account'.tr,
         );
         return isSuccess;
       }
     } on ApiException catch (e) {
+      debugPrint("=== [ADD FAMILY MEMBER API ERROR - ApiException] ===");
+      debugPrint("Message: ${e.message}, StatusCode: ${e.statusCode}, Data: ${e.data}");
       SnackbarHelper.showApiError(e, fallbackKey: 'error_creating_account');
       return isSuccess;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("=== [ADD FAMILY MEMBER API ERROR - Catch] ===");
+      debugPrint("Error: $e");
+      debugPrint("StackTrace: $stackTrace");
       SnackbarHelper.showError('unexpected_error'.tr);
       return isSuccess;
     } finally {
@@ -241,11 +295,19 @@ class RegisterController extends GetxController {
         headers = await AppConstants.getAuthHeaders();
       }
 
+      debugPrint("=== [UPLOAD PROFILE IMAGE API REQUEST] ===");
+      debugPrint("URL: ${ApiUrls.uploadProfileImage}");
+      debugPrint("Headers: $headers");
+      debugPrint("FilePath: ${imageFile.path}");
+
       final response = await api.postMultipart(
         ApiUrls.uploadProfileImage,
         files: {"image": imageFile},
         headers: headers,
       );
+
+      debugPrint("=== [UPLOAD PROFILE IMAGE API RESPONSE] ===");
+      debugPrint("RESPONSE: $response");
 
       if (response['success'] == true) {
         SnackbarHelper.showSuccess("profile_image_uploaded".tr);
@@ -260,11 +322,16 @@ class RegisterController extends GetxController {
 
         Get.offAll(HomeScreen());
       } else {
+        debugPrint("=== [UPLOAD PROFILE IMAGE API FAILED] ===");
+        debugPrint("Message: ${response['message']}");
         SnackbarHelper.showError(
           response['message'] ?? 'error_upload_image'.tr,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("=== [UPLOAD PROFILE IMAGE API ERROR] ===");
+      debugPrint("Error: $e");
+      debugPrint("StackTrace: $stackTrace");
       SnackbarHelper.showError('unexpected_error'.tr);
     } finally {
       uploadingImage.value = false;

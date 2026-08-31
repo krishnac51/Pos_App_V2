@@ -1138,6 +1138,13 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
           _buildInfoRow(Icons.email, 'email'.tr, widget.member.email!),
         _buildInfoRow(Icons.cake, 'date_of_birth'.tr, getFormattedDob()),
         _buildInfoRow(
+          Icons.health_and_safety_outlined,
+          'allergies'.tr,
+          (widget.member.allergies ?? '').trim().isEmpty
+              ? 'not_provided'.tr
+              : widget.member.allergies!,
+        ),
+        _buildInfoRow(
           Icons.location_city,
           'location'.tr,
           "${widget.member.city ?? ''}${widget.member.city != null ? ', ' : ''}${widget.member.country ?? ''}"

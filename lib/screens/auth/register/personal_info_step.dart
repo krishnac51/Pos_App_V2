@@ -118,6 +118,20 @@ class PersonalInfoStep extends StatelessWidget {
 
         const SizedBox(height: 20),
 
+        /// Allergies (optional, max 250)
+        _buildTextField(
+          label: 'allergies'.tr,
+          icon: Icons.health_and_safety_outlined,
+          controller: controller.allergiesController,
+          validator: null,
+          maxLines: 3,
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(250),
+          ],
+        ),
+
+        const SizedBox(height: 20),
+
         /// Password
         Obx(() {
           return TextFormField(
@@ -188,6 +202,7 @@ class PersonalInfoStep extends StatelessWidget {
     List<TextInputFormatter>? inputFormatters,
     TextInputType? keyboardType,
     bool obscureText = false,
+    int maxLines = 1,
   }) {
     return TextFormField(
       controller: controller,
@@ -195,6 +210,7 @@ class PersonalInfoStep extends StatelessWidget {
       inputFormatters: inputFormatters,
       keyboardType: keyboardType,
       obscureText: obscureText,
+      maxLines: maxLines,
       decoration: _inputDecoration(label, icon),
     );
   }
