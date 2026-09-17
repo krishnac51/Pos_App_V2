@@ -89,9 +89,17 @@ class WalletRechargeController extends GetxController {
       final headers = await AppConstants.getAuthHeaders();
       final user = AppConstants.currentUser.value!.userData;
 
+      String emailToUse = user?.email ?? "";
+      if (emailToUse.isEmpty) {
+        final parent = AppConstants.familyOwner.value?.userData;
+        if (parent != null && (parent.email?.isNotEmpty ?? false)) {
+          emailToUse = parent.email!;
+        }
+      }
+
       final body = {
         "amount": amount,
-        "email": user?.email ?? "",
+        "email": emailToUse,
         "first_name": user?.name ?? "User",
         "phone": user?.phone ?? "",
         "pg_codes": ["mada-visa-master", "apple-pay"],
@@ -135,7 +143,7 @@ class WalletRechargeController extends GetxController {
           ),
         );
       } else {
-        SnackbarHelper.showError('try_again'.tr);
+        SnackbarHelper.showError(paymentModel.errorMessage ?? 'try_again'.tr);
       }
     } on ApiException catch (e) {
       print("❌ ApiException: $e");

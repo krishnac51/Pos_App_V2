@@ -1,4 +1,8 @@
 const Map<String, String> ar = {
+  "login_identifier_label": "اسم المستخدم / رقم الجوال",
+  "login_identifier_hint": "أدخل اسم المستخدم أو رقم الجوال",
+  "login_identifier_helper":
+      "استخدم اسم المستخدم أو رقم الجوال المكوّن من أرقام فقط",
   "welcome_message": "مرحبًا بك في فاتورة",
   "choose_language": "اختر لغتك",
   "continue": "استمرار",
@@ -32,6 +36,8 @@ const Map<String, String> ar = {
   "username": "اسم المستخدم",
   "email": "البريد الإلكتروني",
   "phone_number": "رقم الهاتف",
+  "enter_mobile_number": "يرجى إدخال رقم الجوال",
+  "mobile_number_10_digits": "يجب أن يتكون رقم الجوال من 10 أرقام بالضبط",
   "government_id": "الهوية الحكومية",
   "date_of_birth": "تاريخ الميلاد",
   "address": "العنوان",
@@ -78,6 +84,7 @@ const Map<String, String> ar = {
   "passwords_do_not_match": "كلمات المرور غير متطابقة",
   "required_field": "هذا الحقل مطلوب",
   "enter_otp": "أدخل الرمز",
+  "otp_four_digits": "يجب أن يتكون الرمز من 4 أرقام",
   "otp_six_digits": "يجب أن يكون الرمز مكونًا من 6 أرقام",
   "password_min_six": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
   "otp_sent_success": "تم إرسال الرمز بنجاح",
@@ -112,7 +119,8 @@ const Map<String, String> ar = {
   "member": "عضو",
   "members_count": "الأعضاء @count/10",
   "max_family_members": "لا يمكنك إضافة أكثر من 10 أعضاء",
-  "family_description": "إدارة حسابات أفراد عائلتك، وتتبع معاملاتهم، وتحديد حدود الإنفاق في مكان واحد.",
+  "family_description":
+      "إدارة حسابات أفراد عائلتك، وتتبع معاملاتهم، وتحديد حدود الإنفاق في مكان واحد.",
   "view_member": "عرض العضو",
   "edit_profile": "تعديل الملف الشخصي",
   "personal_info": "المعلومات الشخصية",
@@ -200,7 +208,8 @@ const Map<String, String> ar = {
   "new_bal": "الرصيد الجديد:",
   "set_limit": "تعيين الحد",
   "set_child_limit": "تعيين حد العضو",
-  "set_child_limit_desc": "حدد الحد الأقصى للمعاملة وعدد المعاملات اليومية لهذا العضو.",
+  "set_child_limit_desc":
+      "حدد الحد الأقصى للمعاملة وعدد المعاملات اليومية لهذا العضو.",
   "max_per_transaction_label": "الحد الأقصى للمعاملة (ريال)",
   "max_daily_transaction_label": "الحد الأقصى للمعاملات اليومية",
   "fill_all_fields": "يرجى ملء جميع الحقول",
@@ -211,8 +220,10 @@ const Map<String, String> ar = {
   "error_loading_transactions": "تعذر تحميل المعاملات",
   "retry": "إعادة المحاولة",
   "error": "خطأ",
-  "error_loading_profile": "تعذر تحميل الملف الشخصي. تحقق من اتصالك وحاول مرة أخرى.",
+  "error_loading_profile":
+      "تعذر تحميل الملف الشخصي. تحقق من اتصالك وحاول مرة أخرى.",
   "delete_account": "حذف الحساب",
-  "delete_account_confirmation": "هل أنت متأكد أنك تريد حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.",
+  "delete_account_confirmation":
+      "هل أنت متأكد أنك تريد حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.",
   "account_deleted": "تم حذف الحساب بنجاح",
 };

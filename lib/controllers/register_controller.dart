@@ -13,6 +13,7 @@ import '../core/services/api_services.dart';
 import '../models/get_all_store_response_model.dart';
 import '../models/user_signup_model.dart';
 import '../screens/home_screen.dart';
+import '../utils/error_message_helper.dart';
 import '../utils/snakbar_helper.dart';
 import 'home_controller.dart';
 
@@ -111,7 +112,10 @@ class RegisterController extends GetxController {
   Future<void> getAllStore() async {
     try {
       isStoreLoading.value = true;
-      final data = await api.get(ApiUrls.getStoreUrl);
+      final data = await api.get(
+        ApiUrls.getStoreUrl,
+        logoutOnUnauthorized: false,
+      );
 
       if (data['success'] == true) {
         final model = GetAllStoreResponseModel.fromJson(data);
@@ -120,7 +124,10 @@ class RegisterController extends GetxController {
       } else {
         stores.clear();
         SnackbarHelper.showError(
-          data['message']?? 'error_fetching_stores'.tr,
+          ErrorMessageHelper.responseMessage(
+            data,
+            fallbackKey: 'error_fetching_stores',
+          ),
         );
       }
     } on ApiException catch (e) {
@@ -158,26 +165,29 @@ class RegisterController extends GetxController {
       creatingUser.value = true;
 
       final body = {
+        "registertype": "parent",
         "tenant_id": selectedTenantId.value,
         "parent_id": null,
         "name": nameController.text.trim(),
-        "username": usernameController.text.trim(),
+        // Parent accounts use their phone number as the username.
+        "username": phoneController.text.trim(),
         "email": emailController.text.trim(),
-        "gov_id": govIdController.text.trim(),
         "phone": phoneController.text.trim(),
-        "country": 'Riyad',
+        "country": 'Saudi',
         "city": 'Riyad',
         "address": addressController.text.trim(),
         "allergies": allergiesController.text.trim(),
-        "dob": formattedDob,
-        "password": passwordController.text.trim(),
       };
 
       debugPrint("=== [REGISTER API REQUEST] ===");
       debugPrint("URL: ${ApiUrls.registerUrl}");
       debugPrint("BODY: $body");
 
-      final response = await api.post(ApiUrls.registerUrl, body: body);
+      final response = await api.post(
+        ApiUrls.registerUrl,
+        body: body,
+        logoutOnUnauthorized: false,
+      );
 
       debugPrint("=== [REGISTER API RESPONSE] ===");
       debugPrint("RESPONSE: $response");
@@ -195,13 +205,18 @@ class RegisterController extends GetxController {
         debugPrint("=== [REGISTER API FAILED] ===");
         debugPrint("Message: ${response['message']}");
         SnackbarHelper.showError(
-          response['message'] ?? 'error_creating_account'.tr,
+          ErrorMessageHelper.responseMessage(
+            response,
+            fallbackKey: 'error_creating_account',
+          ),
         );
         return isSuccess;
       }
     } on ApiException catch (e) {
       debugPrint("=== [REGISTER API ERROR - ApiException] ===");
-      debugPrint("Message: ${e.message}, StatusCode: ${e.statusCode}, Data: ${e.data}");
+      debugPrint(
+        "Message: ${e.message}, StatusCode: ${e.statusCode}, Data: ${e.data}",
+      );
       SnackbarHelper.showApiError(e, fallbackKey: 'error_creating_account');
       return isSuccess;
     } catch (e, stackTrace) {
@@ -221,6 +236,7 @@ class RegisterController extends GetxController {
       creatingUser.value = true;
 
       final body = {
+        "registertype": "child",
         "tenant_id": selectedTenantId.value.isNotEmpty
             ? selectedTenantId.value
             : AppConstants.currentUser.value!.userData!.tenantId ?? "",
@@ -229,13 +245,12 @@ class RegisterController extends GetxController {
         "username": usernameController.text.trim(),
         if (emailController.text.trim().isNotEmpty)
           "email": emailController.text.trim(),
-        "gov_id": govIdController.text.trim(),
-        "phone": phoneController.text.trim(),
-        "country": 'Riyad',
+        if (phoneController.text.trim().isNotEmpty)
+          "phone": phoneController.text.trim(),
+        "country": 'Saudi',
         "city": 'Riyad',
-        "address": addressController.text.trim(),
         "allergies": allergiesController.text.trim(),
-        "dob": formattedDob,
+        if (formattedDob.isNotEmpty) "dob": formattedDob,
         "password": passwordController.text.trim(),
       };
 
@@ -243,7 +258,11 @@ class RegisterController extends GetxController {
       debugPrint("URL: ${ApiUrls.registerUrl}");
       debugPrint("BODY: $body");
 
-      final response = await api.post(ApiUrls.registerUrl, body: body);
+      final response = await api.post(
+        ApiUrls.registerUrl,
+        body: body,
+        logoutOnUnauthorized: false,
+      );
 
       debugPrint("=== [ADD FAMILY MEMBER API RESPONSE] ===");
       debugPrint("RESPONSE: $response");
@@ -257,13 +276,18 @@ class RegisterController extends GetxController {
         debugPrint("=== [ADD FAMILY MEMBER API FAILED] ===");
         debugPrint("Message: ${response['message']}");
         SnackbarHelper.showError(
-          response['message'] ?? 'error_creating_account'.tr,
+          ErrorMessageHelper.responseMessage(
+            response,
+            fallbackKey: 'error_creating_account',
+          ),
         );
         return isSuccess;
       }
     } on ApiException catch (e) {
       debugPrint("=== [ADD FAMILY MEMBER API ERROR - ApiException] ===");
-      debugPrint("Message: ${e.message}, StatusCode: ${e.statusCode}, Data: ${e.data}");
+      debugPrint(
+        "Message: ${e.message}, StatusCode: ${e.statusCode}, Data: ${e.data}",
+      );
       SnackbarHelper.showApiError(e, fallbackKey: 'error_creating_account');
       return isSuccess;
     } catch (e, stackTrace) {
@@ -325,7 +349,10 @@ class RegisterController extends GetxController {
         debugPrint("=== [UPLOAD PROFILE IMAGE API FAILED] ===");
         debugPrint("Message: ${response['message']}");
         SnackbarHelper.showError(
-          response['message'] ?? 'error_upload_image'.tr,
+          ErrorMessageHelper.responseMessage(
+            response,
+            fallbackKey: 'error_upload_image',
+          ),
         );
       }
     } catch (e, stackTrace) {

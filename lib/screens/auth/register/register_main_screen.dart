@@ -7,7 +7,6 @@ import 'package:pos_v2/screens/auth/register/personal_info_step.dart';
 import 'package:pos_v2/screens/auth/register/profile_picture_step.dart';
 import 'package:pos_v2/screens/auth/register/store_selection_step.dart';
 
-import '../../../constants/app_constants.dart';
 import '../../../controllers/home_controller.dart';
 import '../../../core/services/analytics_services.dart';
 import '../../../utils/snakbar_helper.dart';
@@ -15,8 +14,13 @@ import '../widget/success_dialoug.dart';
 
 class RegisterScreen extends StatefulWidget {
   final bool isFamilyMember;
+  final String? initialPhoneNumber;
 
-  const RegisterScreen({super.key, required this.isFamilyMember});
+  const RegisterScreen({
+    super.key,
+    required this.isFamilyMember,
+    this.initialPhoneNumber,
+  });
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -36,6 +40,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.initState();
     controller.isFamilyMember = widget.isFamilyMember;
     controller.setStep(0);
+    if (!widget.isFamilyMember) {
+      controller.phoneController.text = widget.initialPhoneNumber?.trim() ?? '';
+    }
     controller.reorderStoresForParent();
 
     steps = [
@@ -264,10 +271,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller.currentStep == steps.length - 1
                           ? "upload".tr
                           : controller.currentStep == 1
-                              ? (widget.isFamilyMember
-                                  ? "add_member".tr
-                                  : "register".tr)
-                              : "next".tr,
+                          ? (widget.isFamilyMember
+                                ? "add_member".tr
+                                : "register".tr)
+                          : "next".tr,
                     ),
                   ),
           ],

@@ -280,6 +280,9 @@ class HomeController extends GetxController {
         final model = UserModel.fromJson(data);
         AppConstants.currentUser.value = model;
 
+        // Print user ID
+        print("✅ Auto-logged in / Fetched Profile. User ID: ${model.userData?.id}");
+
         AppConstants.currentBalance.value =
             model.userData?.remainingBalance.toString() ?? '0';
 

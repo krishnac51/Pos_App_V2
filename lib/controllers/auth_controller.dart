@@ -6,6 +6,7 @@ import 'package:pos_v2/screens/auth/login/login_screen.dart';
 import '../constants/api_urls.dart';
 import '../core/services/api_services.dart';
 import '../screens/auth/frogetPassword/otp_screen.dart';
+import '../utils/error_message_helper.dart';
 import '../utils/snakbar_helper.dart' show SnackbarHelper;
 
 class AuthController extends GetxController {
@@ -64,6 +65,7 @@ class AuthController extends GetxController {
       final data = await api.post(
         ApiUrls.sendOtpUrl,
         body: {"username": userName},
+        logoutOnUnauthorized: false,
       );
 
       if (data['success'] == true) {
@@ -74,7 +76,12 @@ class AuthController extends GetxController {
         }
         startOtpTimer();
       } else {
-        SnackbarHelper.showError(data['message'] ?? 'otp_send_failed'.tr);
+        SnackbarHelper.showError(
+          ErrorMessageHelper.responseMessage(
+            data,
+            fallbackKey: 'otp_send_failed',
+          ),
+        );
       }
     } on ApiException catch (e) {
       SnackbarHelper.showApiError(e);
@@ -97,13 +104,19 @@ class AuthController extends GetxController {
       final data = await api.post(
         ApiUrls.verifyOtpUrl,
         body: {"username": userName, "otp": otp, "password": password},
+        logoutOnUnauthorized: false,
       );
 
       if (data['success'] == true) {
         SnackbarHelper.showSuccess('password_updated'.tr);
         Get.offAll(LoginScreen());
       } else {
-        SnackbarHelper.showError(data['message'] ?? 'otp_send_failed'.tr);
+        SnackbarHelper.showError(
+          ErrorMessageHelper.responseMessage(
+            data,
+            fallbackKey: 'otp_send_failed',
+          ),
+        );
       }
     } on ApiException catch (e) {
       SnackbarHelper.showApiError(e);

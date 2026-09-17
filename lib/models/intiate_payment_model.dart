@@ -1,20 +1,27 @@
 class InitiatePaymentModel {
   bool? success;
   Message? message;
+  String? errorMessage;
 
-  InitiatePaymentModel({this.success, this.message});
+  InitiatePaymentModel({this.success, this.message, this.errorMessage});
 
   InitiatePaymentModel.fromJson(Map<String, dynamic> json) {
     success = json['success'];
-    message = json['message'] != null
-        ? Message.fromJson(json['message'])
-        : null;
+    if (json['message'] is String) {
+      errorMessage = json['message'];
+      message = null;
+    } else if (json['message'] != null) {
+      message = Message.fromJson(json['message']);
+      errorMessage = null;
+    }
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['success'] = success;
-    if (message != null) {
+    if (errorMessage != null) {
+      data['message'] = errorMessage;
+    } else if (message != null) {
       data['message'] = message!.toJson();
     }
     return data;
