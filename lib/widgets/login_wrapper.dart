@@ -6,7 +6,6 @@ import 'package:pos_v2/controllers/home_controller.dart';
 import 'package:pos_v2/controllers/locale_controller.dart';
 import 'package:pos_v2/dialogs/my_qr_dialog.dart';
 import 'package:pos_v2/screens/auth/edit_profile_screen.dart';
-import 'package:pos_v2/screens/qr_scanner_screen.dart';
 
 import '../controllers/bottom_nav_controller.dart';
 import '../screens/auth/update_password.dart';
@@ -431,10 +430,7 @@ class _LoginWrapperState extends State<LoginWrapper>
                 child: Row(
                   children: [
                     GestureDetector(
-                      onTap: () => Get.to(
-                        () => const QRScannerScreen(),
-                        transition: Transition.native,
-                      ),
+                      onTap: _showQRCodeDialog,
                       child: const Icon(
                         Icons.qr_code_scanner,
                         color: Colors.blue,

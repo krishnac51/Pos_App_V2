@@ -93,7 +93,7 @@ class _MyQRDialogState extends State<MyQRDialog>
                 children: [
                   // Title
                   Text(
-                    'scan_qr_code'.tr,
+                    'my_qr'.tr,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
