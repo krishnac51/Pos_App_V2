@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pos_v2/screens/recharge/wallert_recharge.dart';
 
 import '../constants/app_colors.dart';
+import '../constants/app_constants.dart';
 
 class WalletCard extends StatelessWidget {
   final double balance;
@@ -55,33 +56,7 @@ class WalletCard extends StatelessWidget {
                 ],
               ),
               const Spacer(),
-              if (showRecharge != false)
-                ElevatedButton(
-                  onPressed: () {
-                    Get.to(WalletRechargeScreen());
-                  },
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    backgroundColor: const Color(0xffa27b2e),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    minimumSize: const Size(0, 40), // smaller height
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: Text(
-                    '+ ${'recharge_wallet'.tr}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
+              if (showRecharge != false) _buildRechargeButton(),
             ],
           ),
 
@@ -93,6 +68,38 @@ class WalletCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildRechargeButton() {
+    return Obx(() {
+      final isChild =
+          AppConstants.currentUser.value?.userData?.parentId != null;
+      if (isChild) return const SizedBox.shrink();
+
+      return ElevatedButton(
+        onPressed: () {
+          Get.to(WalletRechargeScreen());
+        },
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          backgroundColor: const Color(0xffa27b2e),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          minimumSize: const Size(0, 40),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+        child: Text(
+          '+ ${'recharge_wallet'.tr}',
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
+    });
   }
 }
 

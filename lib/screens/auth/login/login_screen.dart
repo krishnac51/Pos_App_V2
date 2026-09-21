@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lottie/lottie.dart';
 import 'package:pos_v2/constants/app_colors.dart' show AppColors;
 import 'package:pos_v2/controllers/login_controller.dart';
 // import 'package:pos_v2/screens/auth/frogetPassword/forget_password.dart';
@@ -15,14 +14,11 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
-    with TickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen> {
   final LoginController controller = Get.put(LoginController());
   final userNameController = TextEditingController();
   final passwordController = TextEditingController();
   final passwordFocusNode = FocusNode();
-  late final AnimationController _lottieController;
-
   bool _isPhoneNumber = false;
   bool _showPasswordField = false;
   bool _obscurePassword = true;
@@ -30,7 +26,6 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void initState() {
     super.initState();
-    _lottieController = AnimationController(vsync: this);
     AnalyticsService.logScreen(screenName: 'Login');
   }
 
@@ -39,7 +34,6 @@ class _LoginScreenState extends State<LoginScreen>
     userNameController.dispose();
     passwordController.dispose();
     passwordFocusNode.dispose();
-    _lottieController.dispose();
     super.dispose();
   }
 
@@ -118,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen>
                 key: controller.formKey,
                 child: Column(
                   children: [
-                    _buildAnimatedIllustration(),
+                    _buildLoginHeaderAnimation(),
                     const SizedBox(height: 12),
                     Text(
                       'welcome_back'.tr,
@@ -315,20 +309,22 @@ class _LoginScreenState extends State<LoginScreen>
     });
   }
 
-  Widget _buildAnimatedIllustration() {
-    return SizedBox(
-      width: 220,
-      height: 220,
-      child: Lottie.asset(
-        'assets/lottie/cart.json',
-        controller: _lottieController,
-        animate: true,
-        repeat: true,
-        onLoaded: (composition) {
-          _lottieController
-            ..duration = composition.duration
-            ..repeat();
-        },
+  Widget _buildLoginHeaderAnimation() {
+    return Align(
+      child: FractionallySizedBox(
+        widthFactor: 0.92,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: AspectRatio(
+            aspectRatio: 4 / 3,
+            child: Image.asset(
+              'assets/images/login_ani.gif',
+              fit: BoxFit.cover,
+              filterQuality: FilterQuality.high,
+              semanticLabel: 'Arabic school and children animation',
+            ),
+          ),
+        ),
       ),
     );
   }
