@@ -11,6 +11,7 @@ import '../controllers/bottom_nav_controller.dart';
 import '../screens/auth/update_password.dart';
 import '../screens/auth/delete_account_screen.dart';
 import 'app_error_widget.dart';
+import 'access_code_sheet.dart';
 
 class LoginWrapper extends StatefulWidget {
   final Widget child;
@@ -313,6 +314,23 @@ class _LoginWrapperState extends State<LoginWrapper>
               Get.to(() => EditProfileScreen());
             },
           ),
+          if (user.parentId != null) ...[
+            const Divider(height: 1, color: Color.fromARGB(255, 235, 235, 235)),
+            _buildMenuTile(
+              icon: Icons.shield_outlined,
+              title: 'access_code'.tr,
+              onTap: () {
+                Get.back();
+                showAccessCodeSheet(
+                  context,
+                  name: user.name ?? 'unnamed'.tr,
+                  accessCode: user.accessCode,
+                  canEdit: false,
+                  onSave: null,
+                );
+              },
+            ),
+          ],
           const Divider(height: 1, color: Color.fromARGB(255, 235, 235, 235)),
           _buildMenuTile(
             icon: Icons.wallet,

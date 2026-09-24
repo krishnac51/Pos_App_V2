@@ -61,6 +61,7 @@ class Accounts {
   String? createdAt;
   ImageUrl? imageUrl;
   int? remainingBalance;
+  String? accessCode;
   List<Media>? media;
 
   Accounts({
@@ -78,6 +79,7 @@ class Accounts {
     this.allergies,
     this.imageUrl,
     this.remainingBalance,
+    this.accessCode,
     this.media,
   });
 
@@ -95,6 +97,7 @@ class Accounts {
     allergies = json['allergies']?.toString();
     createdAt = json['created_at'];
     remainingBalance = json['remaining_balance'];
+    accessCode = json['access_code']?.toString();
 
     // Handle image_url safely: can be Map, [], or null
     final imageUrlJson = json['image_url'];
@@ -130,6 +133,7 @@ class Accounts {
     data['allergies'] = allergies;
     data['created_at'] = createdAt;
     data['remaining_balance'] = remainingBalance;
+    data['access_code'] = accessCode;
 
     if (imageUrl != null && (imageUrl!.imageUrls?.isNotEmpty ?? false)) {
       data['image_url'] = imageUrl!.toJson();

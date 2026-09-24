@@ -36,6 +36,7 @@ class RegisterController extends GetxController {
   final govIdController = TextEditingController();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+  final accessCodeController = TextEditingController();
   var selectedImagePath = "".obs;
   final addressController = TextEditingController();
   final allergiesController = TextEditingController();
@@ -106,6 +107,16 @@ class RegisterController extends GetxController {
       return 'gov_id_10_digits'.tr;
     }
 
+    return null;
+  }
+
+  String? validateAccessCode(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'access_code_required'.tr;
+    }
+    if (!RegExp(r'^\d{4}$').hasMatch(value.trim())) {
+      return 'access_code_four_digits'.tr;
+    }
     return null;
   }
 
@@ -252,11 +263,15 @@ class RegisterController extends GetxController {
         "allergies": allergiesController.text.trim(),
         if (formattedDob.isNotEmpty) "dob": formattedDob,
         "password": passwordController.text.trim(),
+        "access_code": accessCodeController.text.trim(),
       };
 
       debugPrint("=== [ADD FAMILY MEMBER API REQUEST] ===");
       debugPrint("URL: ${ApiUrls.registerUrl}");
-      debugPrint("BODY: $body");
+      final logBody = Map<String, dynamic>.from(body);
+      logBody['password'] = '[REDACTED]';
+      logBody['access_code'] = '[REDACTED]';
+      debugPrint("BODY: $logBody");
 
       final response = await api.post(
         ApiUrls.registerUrl,

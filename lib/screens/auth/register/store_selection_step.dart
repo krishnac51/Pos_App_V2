@@ -1,11 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pos_v2/controllers/register_controller.dart';
+import 'package:pos_v2/models/get_all_store_response_model.dart';
 
-class StoreSelectionStep extends StatelessWidget {
+class StoreSelectionStep extends StatefulWidget {
   final RegisterController controller;
 
   const StoreSelectionStep({super.key, required this.controller});
+
+  @override
+  State<StoreSelectionStep> createState() => _StoreSelectionStepState();
+}
+
+class _StoreSelectionStepState extends State<StoreSelectionStep> {
+  late final TextEditingController _searchController;
+  String _searchQuery = '';
+
+  RegisterController get controller => widget.controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<Stores> _filteredStores() {
+    final query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return controller.stores.toList();
+
+    return controller.stores.where((store) {
+      final name = (store.name ?? '').toLowerCase();
+      final tenantId = (store.tenantId ?? '').toLowerCase();
+      return name.contains(query) || tenantId.contains(query);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,25 +81,92 @@ class StoreSelectionStep extends StatelessWidget {
             );
           }
 
-          return ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: controller.stores.length,
-            itemBuilder: (context, index) {
-              final store = controller.stores[index];
-              final tenantId = store.tenantId ?? "";
+          final stores = _filteredStores();
 
-              return Obx(
-                () => _AnimatedStoreTile(
-                  storeName: store.name ?? "Store ${store.id}",
-                  isSelected: controller.selectedTenantId.value == tenantId,
-                  onTap: () {
-                    controller.selectedTenantId.value = tenantId;
-                  },
-                  index: index,
+          return Column(
+            children: [
+              TextField(
+                controller: _searchController,
+                onChanged: (value) => setState(() => _searchQuery = value),
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: 'search_stores'.tr,
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  suffixIcon: _searchQuery.isEmpty
+                      ? null
+                      : IconButton(
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() => _searchQuery = '');
+                          },
+                          icon: const Icon(Icons.close_rounded),
+                        ),
+                  filled: true,
+                  fillColor: const Color(0xFFF7FAFD),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: Color(0xFFE0E8F1)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: Color(0xFFE0E8F1)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(
+                      color: Colors.blue,
+                      width: 1.5,
+                    ),
+                  ),
                 ),
-              );
-            },
+              ),
+              const SizedBox(height: 14),
+              if (stores.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 28),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.search_off_rounded,
+                        size: 34,
+                        color: Colors.blueGrey.shade300,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'no_stores_match'.tr,
+                        style: TextStyle(color: Colors.blueGrey.shade600),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 420),
+                  child: Scrollbar(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      primary: false,
+                      itemCount: stores.length,
+                      itemBuilder: (context, index) {
+                        final store = stores[index];
+                        final tenantId = store.tenantId ?? "";
+
+                        return Obx(
+                          () => _AnimatedStoreTile(
+                            storeName: store.name ?? "Store ${store.id}",
+                            isSelected:
+                                controller.selectedTenantId.value == tenantId,
+                            onTap: () {
+                              controller.selectedTenantId.value = tenantId;
+                            },
+                            index: index,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+            ],
           );
         }),
       ],

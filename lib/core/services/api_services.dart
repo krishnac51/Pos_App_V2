@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:pos_v2/constants/app_constants.dart';
 
@@ -12,6 +13,7 @@ class ApiService extends GetxService {
 
   ApiService({required this.baseUrl, Map<String, String>? headers})
     : defaultHeaders =
+
           headers ??
           {'Content-Type': 'application/json', 'Accept': 'application/json'};
 
@@ -234,6 +236,7 @@ class ApiService extends GetxService {
         normalizedKey == 'confirmpassword' ||
         normalizedKey == 'otp' ||
         normalizedKey == 'activekey' ||
+        normalizedKey == 'accesscode' ||
         normalizedKey == 'authorization' ||
         normalizedKey == 'accesstoken' ||
         normalizedKey == 'refreshtoken' ||

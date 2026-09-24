@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pos_v2/constants/enums.dart';
 import 'package:pos_v2/controllers/home_controller.dart';
+import 'package:pos_v2/controllers/access_code_controller.dart';
 import 'package:pos_v2/controllers/wallet_controller.dart';
 import 'package:pos_v2/models/family_member_model.dart' show Accounts;
 import 'package:pos_v2/screens/family_member/max_amount_filed.dart';
@@ -19,6 +20,7 @@ import '../../constants/app_constants.dart';
 import '../../utils/snakbar_helper.dart' show SnackbarHelper;
 import '../../widgets/app_screen_wrapper.dart';
 import '../auth/edit_profile_screen.dart';
+import '../../widgets/access_code_sheet.dart';
 
 class FamilyMemberDetailScreen extends StatefulWidget {
   final Accounts member;
@@ -34,6 +36,7 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
   late TabController _tabController;
   late WalletController walletController;
   late HomeController homeController;
+  late AccessCodeController accessCodeController;
 
   @override
   void initState() {
@@ -46,6 +49,7 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
 
     walletController = Get.put(WalletController());
     homeController = Get.put(HomeController());
+    accessCodeController = Get.put(AccessCodeController());
 
     if (widget.member.id != null) {
       walletController.currentBalance.value = widget.member.remainingBalance!
@@ -556,6 +560,13 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
                       'no_username'.tr,
                   style: TextStyle(fontSize: 15, color: Colors.grey[700]),
                 ),
+                if (isParent) ...[
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: _buildAccessCodeButton(),
+                  ),
+                ],
                 const SizedBox(height: 16),
                 Obx(
                   () => WalletCard(
@@ -882,6 +893,53 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAccessCodeButton() {
+    return OutlinedButton.icon(
+      onPressed: _openAccessCodeSheet,
+      icon: const Icon(Icons.shield_outlined, size: 17),
+      label: Text('access_code'.tr),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: const Color(0xFF1769AA),
+        side: const BorderSide(color: Color(0xFFB9D8F5)),
+        backgroundColor: const Color(0xFFF5FAFF),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        minimumSize: const Size(0, 36),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+
+  Accounts? _memberFromApi() {
+    for (final member
+        in AppConstants.familyMembers.value?.message?.accounts ?? []) {
+      if (member.id == widget.member.id) return member;
+    }
+    return null;
+  }
+
+  Future<void> _openAccessCodeSheet() async {
+    final apiMember = _memberFromApi();
+    await showAccessCodeSheet(
+      context,
+      name: apiMember?.name ?? widget.member.name ?? 'unnamed'.tr,
+      accessCode: apiMember?.accessCode,
+      canEdit: true,
+      onSave: (code) async {
+        final saved = await accessCodeController.updateAccessCode(
+          userId: widget.member.id!,
+          accessCode: code,
+        );
+        if (!saved || !mounted) return saved;
+
+        // Re-read the child from the server. Do not apply the submitted code
+        // directly to the current screen model.
+        await homeController.getFamilyMember();
+        return _memberFromApi()?.accessCode != null;
+      },
     );
   }
 

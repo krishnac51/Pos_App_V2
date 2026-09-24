@@ -43,6 +43,7 @@ class UserData {
   String? updatedAt;
   ImageUrl? imageUrl;
   String? currentCard;
+  String? accessCode;
   double remainingBalance = 0.0;
 
   UserData({
@@ -65,6 +66,7 @@ class UserData {
     this.updatedAt,
     this.imageUrl,
     this.currentCard,
+    this.accessCode,
     this.remainingBalance = 0.0,
   });
 
@@ -86,6 +88,7 @@ class UserData {
     deleted = json['deleted'];
     createdAt = json['created_at'];
     currentCard = json['current_card'];
+    accessCode = json['access_code']?.toString();
     //  "QR-D55FAEF3-DD92-420F-81FB-D5BD7A85955F";
 
     updatedAt = json['updated_at'];
@@ -124,6 +127,7 @@ class UserData {
       data['image_url'] = imageUrl!.toJson();
     }
     data['remaining_balance'] = remainingBalance;
+    data['access_code'] = accessCode;
     return data;
   }
 

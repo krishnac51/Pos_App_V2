@@ -4,6 +4,7 @@ class ApiUrls {
   static const String configsUrl = "configs";
   static String getStoreUrl = "stores";
   static String registerUrl = "register";
+  static String updateAccessCodeUrl = "update-access-code";
   static String getProfileUrl = "profile";
   static String uploadProfileImage = "upload-profile-image";
   static String updateProfileUrl = "profile/update";
