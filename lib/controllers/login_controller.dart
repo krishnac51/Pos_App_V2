@@ -20,6 +20,7 @@ class LoginController extends GetxController {
 
   String get _languageCode => Get.locale?.languageCode == 'ar' ? 'ar' : 'en';
 
+
   String? validateUserName(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter your username or mobile number';
