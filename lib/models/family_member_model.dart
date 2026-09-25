@@ -62,6 +62,7 @@ class Accounts {
   ImageUrl? imageUrl;
   int? remainingBalance;
   String? accessCode;
+  bool? isAccessCodeEnable;
   List<Media>? media;
 
   Accounts({
@@ -80,6 +81,7 @@ class Accounts {
     this.imageUrl,
     this.remainingBalance,
     this.accessCode,
+    this.isAccessCodeEnable,
     this.media,
   });
 
@@ -98,6 +100,13 @@ class Accounts {
     createdAt = json['created_at'];
     remainingBalance = json['remaining_balance'];
     accessCode = json['access_code']?.toString();
+    final enable = json['is_access_code_enable'];
+    isAccessCodeEnable = enable == null
+        ? null
+        : enable is bool
+        ? enable
+        : (enable.toString() == '1' ||
+              enable.toString().toLowerCase() == 'true');
 
     // Handle image_url safely: can be Map, [], or null
     final imageUrlJson = json['image_url'];
@@ -134,6 +143,7 @@ class Accounts {
     data['created_at'] = createdAt;
     data['remaining_balance'] = remainingBalance;
     data['access_code'] = accessCode;
+    data['is_access_code_enable'] = isAccessCodeEnable;
 
     if (imageUrl != null && (imageUrl!.imageUrls?.isNotEmpty ?? false)) {
       data['image_url'] = imageUrl!.toJson();

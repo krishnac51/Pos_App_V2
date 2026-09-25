@@ -219,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
           opacity: animation,
           child: SizeTransition(
             sizeFactor: animation,
-            alignment: Alignment.topCenter,
+            axisAlignment: -1.0,
             child: SlideTransition(position: slideAnimation, child: child),
           ),
         );

@@ -7,8 +7,9 @@ Future<void> showAccessCodeSheet(
   BuildContext context, {
   required String name,
   required String? accessCode,
+  bool accessCodeEnabled = false,
   required bool canEdit,
-  required Future<bool> Function(String accessCode)? onSave,
+  required Future<bool> Function(String accessCode, bool enabled)? onSave,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -17,6 +18,7 @@ Future<void> showAccessCodeSheet(
     builder: (_) => AccessCodeSheet(
       name: name,
       accessCode: accessCode,
+      accessCodeEnabled: accessCodeEnabled,
       canEdit: canEdit,
       onSave: onSave,
     ),
@@ -26,13 +28,15 @@ Future<void> showAccessCodeSheet(
 class AccessCodeSheet extends StatefulWidget {
   final String name;
   final String? accessCode;
+  final bool accessCodeEnabled;
   final bool canEdit;
-  final Future<bool> Function(String accessCode)? onSave;
+  final Future<bool> Function(String accessCode, bool enabled)? onSave;
 
   const AccessCodeSheet({
     super.key,
     required this.name,
     required this.accessCode,
+    this.accessCodeEnabled = false,
     required this.canEdit,
     required this.onSave,
   });
@@ -46,6 +50,7 @@ class _AccessCodeSheetState extends State<AccessCodeSheet> {
   bool _isEditing = false;
   bool _isVisible = false;
   bool _isSaving = false;
+  late bool _isEnabled = widget.accessCodeEnabled;
 
   @override
   void initState() {
@@ -76,7 +81,7 @@ class _AccessCodeSheetState extends State<AccessCodeSheet> {
     }
 
     setState(() => _isSaving = true);
-    final saved = await widget.onSave?.call(_code) ?? false;
+    final saved = await widget.onSave?.call(_code, _isEnabled) ?? false;
     if (!mounted) return;
     setState(() => _isSaving = false);
     if (saved) Navigator.of(context).pop();
@@ -183,6 +188,10 @@ class _AccessCodeSheetState extends State<AccessCodeSheet> {
               _buildEditor(context)
             else
               _buildCodeCard(visibleCode),
+            if (widget.canEdit) ...[
+              const SizedBox(height: 14),
+              _buildEnableSwitch(),
+            ],
             const SizedBox(height: 22),
             if (widget.canEdit && !_isEditing)
               SizedBox(
@@ -212,6 +221,7 @@ class _AccessCodeSheetState extends State<AccessCodeSheet> {
                           : () => setState(() {
                               _isEditing = false;
                               _codeController.text = widget.accessCode ?? '';
+                              _isEnabled = widget.accessCodeEnabled;
                             }),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size.fromHeight(52),
@@ -254,6 +264,40 @@ class _AccessCodeSheetState extends State<AccessCodeSheet> {
     );
   }
 
+  Widget _buildEnableSwitch() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7FAFD),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE0E8F1)),
+      ),
+      child: SwitchListTile.adaptive(
+        contentPadding: EdgeInsets.zero,
+        value: _isEnabled,
+        activeColor: AppColors.primaryBlue,
+        title: Text(
+          'enable_access_code'.tr,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF14253D),
+          ),
+        ),
+        subtitle: Text(
+          'enable_access_code_desc'.tr,
+          style: TextStyle(fontSize: 12.5, color: Colors.blueGrey.shade600),
+        ),
+        onChanged: _isSaving
+            ? null
+            : (value) => setState(() {
+                _isEnabled = value;
+                _isEditing = true;
+              }),
+      ),
+    );
+  }
+
   Widget _buildCodeCard(String code) {
     final safeCode = code.length == 4 ? code : '----';
     return Container(
@@ -264,7 +308,9 @@ class _AccessCodeSheetState extends State<AccessCodeSheet> {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFFE0E8F1)),
       ),
+      // Digits always read left to right, also in Arabic.
       child: Row(
+        textDirection: TextDirection.ltr,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           ...List.generate(4, (index) {
@@ -272,7 +318,7 @@ class _AccessCodeSheetState extends State<AccessCodeSheet> {
             return Container(
               width: 48,
               height: 58,
-              margin: EdgeInsets.only(right: index == 3 ? 0 : 10),
+              margin: const EdgeInsets.symmetric(horizontal: 5),
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -295,27 +341,30 @@ class _AccessCodeSheetState extends State<AccessCodeSheet> {
   }
 
   Widget _buildEditor(BuildContext context) {
-    return PinCodeTextField(
-      appContext: context,
-      length: 4,
-      controller: _codeController,
-      keyboardType: TextInputType.number,
-      animationType: AnimationType.scale,
-      enableActiveFill: true,
-      autoDismissKeyboard: false,
-      cursorColor: AppColors.primaryBlue,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      pinTheme: PinTheme(
-        shape: PinCodeFieldShape.box,
-        borderRadius: BorderRadius.circular(14),
-        fieldHeight: 58,
-        fieldWidth: 54,
-        activeColor: AppColors.primaryBlue,
-        selectedColor: AppColors.primaryBlue,
-        inactiveColor: const Color(0xFFD6E2F0),
-        activeFillColor: const Color(0xFFEAF4FF),
-        selectedFillColor: Colors.white,
-        inactiveFillColor: Colors.white,
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: PinCodeTextField(
+        appContext: context,
+        length: 4,
+        controller: _codeController,
+        keyboardType: TextInputType.number,
+        animationType: AnimationType.scale,
+        enableActiveFill: true,
+        autoDismissKeyboard: false,
+        cursorColor: AppColors.primaryBlue,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        pinTheme: PinTheme(
+          shape: PinCodeFieldShape.box,
+          borderRadius: BorderRadius.circular(14),
+          fieldHeight: 58,
+          fieldWidth: 54,
+          activeColor: AppColors.primaryBlue,
+          selectedColor: AppColors.primaryBlue,
+          inactiveColor: const Color(0xFFD6E2F0),
+          activeFillColor: const Color(0xFFEAF4FF),
+          selectedFillColor: Colors.white,
+          inactiveFillColor: Colors.white,
+        ),
       ),
     );
   }

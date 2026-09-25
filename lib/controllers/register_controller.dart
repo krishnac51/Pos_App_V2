@@ -263,7 +263,8 @@ class RegisterController extends GetxController {
         "allergies": allergiesController.text.trim(),
         if (formattedDob.isNotEmpty) "dob": formattedDob,
         "password": passwordController.text.trim(),
-        "access_code": accessCodeController.text.trim(),
+        // Access code step is disabled; a fixed default code is sent for now.
+        "access_code": "1111",
       };
 
       debugPrint("=== [ADD FAMILY MEMBER API REQUEST] ===");

@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:pos_v2/constants/app_colors.dart';
 import 'package:pos_v2/controllers/register_controller.dart';
 import 'package:pos_v2/screens/auth/register/personal_info_step.dart';
-import 'package:pos_v2/screens/auth/register/access_code_step.dart';
+// import 'package:pos_v2/screens/auth/register/access_code_step.dart';
 import 'package:pos_v2/screens/auth/register/profile_picture_step.dart';
 import 'package:pos_v2/screens/auth/register/store_selection_step.dart';
 
@@ -56,18 +56,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
           formKey: _personalFormKey,
         ),
       ),
-      if (widget.isFamilyMember) AccessCodeStep(controller: controller),
+      // Access code step disabled: child accounts are created with a fixed
+      // access code (see RegisterController.addFamilyMember).
+      // if (widget.isFamilyMember) AccessCodeStep(controller: controller),
       ProfilePictureStep(controller: controller),
     ];
 
     stepIndicators = [
       EasyStep(title: 'store'.tr, icon: const Icon(Icons.store)),
       EasyStep(title: 'personal'.tr, icon: const Icon(Icons.person)),
-      if (widget.isFamilyMember)
-        EasyStep(
-          title: 'access_code'.tr,
-          icon: const Icon(Icons.shield_outlined),
-        ),
+      // if (widget.isFamilyMember)
+      //   EasyStep(
+      //     title: 'access_code'.tr,
+      //     icon: const Icon(Icons.shield_outlined),
+      //   ),
       EasyStep(title: 'profile_picture'.tr, icon: const Icon(Icons.photo)),
     ];
   }
@@ -90,38 +92,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
         isValid = _personalFormKey.currentState?.validate() ?? false;
         if (!isValid) return;
         if (widget.isFamilyMember) {
-          AnalyticsService.logScreen(screenName: 'ChildAccessCode');
           FocusScope.of(context).unfocus();
-          controller.nextStep();
-          _scrollToTop();
+          AnalyticsService.logScreen(screenName: 'AddProfilePicture');
+          _addMember();
         } else {
           _submitForm();
         }
         return;
       case 2:
-        if (widget.isFamilyMember) {
-          final error = controller.validateAccessCode(
-            controller.accessCodeController.text,
-          );
-          if (error != null) {
-            SnackbarHelper.showError(error);
-            return;
-          }
-          AnalyticsService.logScreen(screenName: 'AddProfilePicture');
-          _addMember();
-          return;
-        }
-        isValid = controller.selectedImagePath.value.isNotEmpty;
-        if (!isValid) {
-          SnackbarHelper.showError("select_image_error".tr);
-          return;
-        }
-        AnalyticsService.logScreen(screenName: 'RegistrationSuccess');
-        controller.uploadUserProfileImage(
-          isFamilyMember: widget.isFamilyMember,
-        );
-        return;
-      case 3:
         isValid = controller.selectedImagePath.value.isNotEmpty;
         if (!isValid) {
           SnackbarHelper.showError("select_image_error".tr);
@@ -307,8 +285,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ? (widget.isFamilyMember
                                 ? "add_member".tr
                                 : "register".tr)
-                          : controller.currentStep == 2 && widget.isFamilyMember
-                          ? "add_member".tr
                           : "next".tr,
                     ),
                   ),

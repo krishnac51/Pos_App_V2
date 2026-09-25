@@ -15,6 +15,8 @@ class PersonalInfoStep extends StatelessWidget {
 
   bool get _isChildRegistration => controller.isFamilyMember;
 
+  String _optional(String label) => '$label (${'optional'.tr})';
+
   Future<void> _selectDate(BuildContext context) async {
     final picked = await showDatePicker(
       context: context,
@@ -54,7 +56,9 @@ class PersonalInfoStep extends StatelessWidget {
 
         const SizedBox(height: 20),
         _buildTextField(
-          label: 'email'.tr,
+          label: _isChildRegistration
+              ? _optional('email'.tr)
+              : 'email'.tr,
           icon: Icons.email,
           controller: controller.emailController,
           validator: _isChildRegistration
@@ -65,7 +69,9 @@ class PersonalInfoStep extends StatelessWidget {
 
         const SizedBox(height: 20),
         _buildTextField(
-          label: 'phone_number'.tr,
+          label: _isChildRegistration
+              ? _optional('phone_number'.tr)
+              : 'phone_number'.tr,
           icon: Icons.phone,
           controller: controller.phoneController,
           readOnly: !_isChildRegistration,
@@ -89,7 +95,7 @@ class PersonalInfoStep extends StatelessWidget {
             readOnly: true,
             onTap: () => _selectDate(context),
             decoration: _inputDecoration(
-              'date_of_birth'.tr,
+              _optional('date_of_birth'.tr),
               Icons.calendar_today,
             ),
           ),
@@ -97,7 +103,7 @@ class PersonalInfoStep extends StatelessWidget {
 
         const SizedBox(height: 20),
         _buildTextField(
-          label: 'allergies'.tr,
+          label: _optional('allergies'.tr),
           icon: Icons.health_and_safety_outlined,
           controller: controller.allergiesController,
           validator: null,

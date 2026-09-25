@@ -12,13 +12,18 @@ class AccessCodeController extends GetxController {
   Future<bool> updateAccessCode({
     required int userId,
     required String accessCode,
+    required bool accessCodeEnable,
   }) async {
     try {
       isUpdating.value = true;
       final response = await api.post(
         ApiUrls.updateAccessCodeUrl,
         headers: await AppConstants.getAuthHeaders(),
-        body: {'user_id': userId, 'access_code': accessCode},
+        body: {
+          'user_id': userId,
+          'access_code': accessCode,
+          'access_code_enable': accessCodeEnable,
+        },
       );
 
       if (response['success'] == true) {

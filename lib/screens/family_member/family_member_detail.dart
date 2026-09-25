@@ -927,11 +927,13 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
       context,
       name: apiMember?.name ?? widget.member.name ?? 'unnamed'.tr,
       accessCode: apiMember?.accessCode,
+      accessCodeEnabled: apiMember?.isAccessCodeEnable ?? false,
       canEdit: true,
-      onSave: (code) async {
+      onSave: (code, enabled) async {
         final saved = await accessCodeController.updateAccessCode(
           userId: widget.member.id!,
           accessCode: code,
+          accessCodeEnable: enabled,
         );
         if (!saved || !mounted) return saved;
 

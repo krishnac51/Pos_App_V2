@@ -162,9 +162,10 @@ class _LoginOtpScreenState extends State<LoginOtpScreen>
 
     final prefixLength = phone.length > 7 ? 3 : 1;
     final hiddenLength = phone.length - prefixLength - 4;
-    return '${phone.substring(0, prefixLength)}'
+    // Isolate the number as LTR so it is not reordered inside RTL text.
+    return '⁦${phone.substring(0, prefixLength)}'
         '${'•' * hiddenLength}'
-        '${phone.substring(phone.length - 4)}';
+        '${phone.substring(phone.length - 4)}⁩';
   }
 
   @override
@@ -346,36 +347,40 @@ class _LoginOtpScreenState extends State<LoginOtpScreen>
           ),
         ),
         const SizedBox(height: 10),
-        PinCodeTextField(
-          appContext: context,
-          length: _otpLength,
-          controller: _otpController,
-          keyboardType: TextInputType.number,
-          autovalidateMode: AutovalidateMode.disabled,
-          cursorColor: AppColors.primaryBlue,
-          autoDismissKeyboard: true,
-          animationType: AnimationType.scale,
-          enableActiveFill: true,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          pinTheme: PinTheme(
-            shape: PinCodeFieldShape.box,
-            borderRadius: BorderRadius.circular(13),
-            fieldHeight: 54,
-            fieldWidth: fieldWidth,
-            activeColor: AppColors.primaryBlue,
-            selectedColor: AppColors.primaryBlue,
-            inactiveColor: const Color(0xFFD9E1EC),
-            activeFillColor: AppColors.cardBg,
-            selectedFillColor: Colors.white,
-            inactiveFillColor: const Color(0xFFF9FBFD),
+        // OTP digits always fill left to right, also in Arabic.
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: PinCodeTextField(
+            appContext: context,
+            length: _otpLength,
+            controller: _otpController,
+            keyboardType: TextInputType.number,
+            autovalidateMode: AutovalidateMode.disabled,
+            cursorColor: AppColors.primaryBlue,
+            autoDismissKeyboard: true,
+            animationType: AnimationType.scale,
+            enableActiveFill: true,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            pinTheme: PinTheme(
+              shape: PinCodeFieldShape.box,
+              borderRadius: BorderRadius.circular(13),
+              fieldHeight: 54,
+              fieldWidth: fieldWidth,
+              activeColor: AppColors.primaryBlue,
+              selectedColor: AppColors.primaryBlue,
+              inactiveColor: const Color(0xFFD9E1EC),
+              activeFillColor: AppColors.cardBg,
+              selectedFillColor: Colors.white,
+              inactiveFillColor: const Color(0xFFF9FBFD),
+            ),
+            onChanged: (value) {
+              final isComplete = value.length == _otpLength;
+              if (_hasCompleteOtp != isComplete) {
+                setState(() => _hasCompleteOtp = isComplete);
+              }
+            },
+            validator: _validateOtp,
           ),
-          onChanged: (value) {
-            final isComplete = value.length == _otpLength;
-            if (_hasCompleteOtp != isComplete) {
-              setState(() => _hasCompleteOtp = isComplete);
-            }
-          },
-          validator: _validateOtp,
         ),
       ],
     );
