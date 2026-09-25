@@ -95,16 +95,6 @@ class PersonalInfoStep extends StatelessWidget {
           ),
         ],
 
-        if (!_isChildRegistration) ...[
-          const SizedBox(height: 20),
-          _buildTextField(
-            label: 'address'.tr,
-            icon: Icons.home,
-            controller: controller.addressController,
-            validator: (v) => controller.validateRequired(v, 'address'),
-          ),
-        ],
-
         const SizedBox(height: 20),
         _buildTextField(
           label: 'allergies'.tr,
@@ -114,6 +104,16 @@ class PersonalInfoStep extends StatelessWidget {
           maxLines: 3,
           inputFormatters: [LengthLimitingTextInputFormatter(250)],
         ),
+
+        if (!_isChildRegistration) ...[
+          const SizedBox(height: 20),
+          _buildTextField(
+            label: 'address'.tr,
+            icon: Icons.home,
+            controller: controller.addressController,
+            validator: (v) => controller.validateRequired(v, 'address'),
+          ),
+        ],
 
         if (_isChildRegistration) ...[
           const SizedBox(height: 20),

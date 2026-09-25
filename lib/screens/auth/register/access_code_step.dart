@@ -80,7 +80,7 @@ class AccessCodeStep extends StatelessWidget {
                 keyboardType: TextInputType.number,
                 animationType: AnimationType.scale,
                 enableActiveFill: true,
-                autoDismissKeyboard: false,
+                autoDismissKeyboard: true,
                 cursorColor: AppColors.primaryBlue,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 pinTheme: PinTheme(
@@ -95,6 +95,11 @@ class AccessCodeStep extends StatelessWidget {
                   selectedFillColor: Colors.white,
                   inactiveFillColor: Colors.white,
                 ),
+                onChanged: (value) {
+                  if (value.length == 4) {
+                    FocusScope.of(context).unfocus();
+                  }
+                },
               ),
               const SizedBox(height: 16),
               Row(
